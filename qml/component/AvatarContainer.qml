@@ -15,6 +15,12 @@ Row {
         visible: avatarVisible
         source: author.avatarUrl != "" ? "image://mxc/" + author.avatarUrl : null
         displayText: author.displayName
+
+        AutoMouseArea {
+            anchors.fill: parent
+
+            onPrimaryClicked: inputField.insert(inputField.cursorPosition, author.displayName)
+        }
     }
 
     Rectangle {

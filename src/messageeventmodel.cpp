@@ -31,6 +31,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const {
   roles[AnnotationRole] = "annotation";
   roles[EventResolvedTypeRole] = "eventResolvedType";
   roles[PlainTextRole] = "plainText";
+  roles[UserMarkerRole] = "userMarker";
   return roles;
 }
 
@@ -135,8 +136,10 @@ void MessageEventModel::setRoom(QMatrixClient::Room* room) {
             &MessageEventModel::refreshEvent);
     connect(m_currentRoom, &Room::fileTransferCancelled, this,
             &MessageEventModel::refreshEvent);
-    qDebug() << "Connected to room" << room->id() << "as"
-             << room->localUser()->id();
+    connect(m_currentRoom, &Room::readMarkerMoved, this, [=](QString fromEventId, QString toEventId) {
+        refreshEventRoles(fromEventId, {UserMarkerRole});
+         refreshEventRoles(toEventId, {UserMarkerRole});
+    });
   } else
     lastReadEventId.clear();
   endResetModel();
@@ -618,6 +621,12 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const {
     auto ts =
         isPending ? pendingIt->lastUpdated() : makeMessageTimestamp(timelineIt);
     return role == TimeRole ? QVariant(ts) : renderDate(ts);
+  }
+
+  if (role == UserMarkerRole) {
+      QVariantList variantList;
+      for (User* user : m_currentRoom->usersAtEventId(evt.id())) variantList.append(QVariant::fromValue(user));
+      return variantList;
   }
 
   if (role == AboveSectionRole || role == AboveAuthorRole ||

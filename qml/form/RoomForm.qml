@@ -295,6 +295,16 @@ Item {
                         }
 
                         MessageDelegate {}
+
+                        ListView {
+                            width:parent.width
+                            height: 20
+                            orientation: ListView.Horizontal
+                            model: userMarker
+                            delegate: Label {
+                                text: model.modelData.displayName
+                            }
+                        }
                     }
 
                     ScrollBar.vertical: messageListViewScrollBar
