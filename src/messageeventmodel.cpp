@@ -136,10 +136,11 @@ void MessageEventModel::setRoom(QMatrixClient::Room* room) {
             &MessageEventModel::refreshEvent);
     connect(m_currentRoom, &Room::fileTransferCancelled, this,
             &MessageEventModel::refreshEvent);
-    connect(m_currentRoom, &Room::readMarkerMoved, this, [=](QString fromEventId, QString toEventId) {
-        refreshEventRoles(fromEventId, {UserMarkerRole});
-         refreshEventRoles(toEventId, {UserMarkerRole});
-    });
+    connect(m_currentRoom, &Room::readMarkerForUserMoved, this,
+            [=](User* user, QString fromEventId, QString toEventId) {
+              refreshEventRoles(fromEventId, {UserMarkerRole});
+              refreshEventRoles(toEventId, {UserMarkerRole});
+            });
   } else
     lastReadEventId.clear();
   endResetModel();
@@ -624,9 +625,10 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const {
   }
 
   if (role == UserMarkerRole) {
-      QVariantList variantList;
-      for (User* user : m_currentRoom->usersAtEventId(evt.id())) variantList.append(QVariant::fromValue(user));
-      return variantList;
+    QVariantList variantList;
+    for (User* user : m_currentRoom->usersAtEventId(evt.id()))
+      variantList.append(QVariant::fromValue(user));
+    return variantList;
   }
 
   if (role == AboveSectionRole || role == AboveAuthorRole ||
