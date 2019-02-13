@@ -1,61 +1,38 @@
 #ifndef IMAGEPROVIDER_H
 #define IMAGEPROVIDER_H
-#pragma once
 
-#include <jobs/mediathumbnailjob.h>
-#include <QThreadPool>
-#include <QtCore/QAtomicPointer>
+#include <QObject>
 #include <QtCore/QReadWriteLock>
-#include <QtQuick/QQuickAsyncImageProvider>
+#include <QtQuick/QQuickImageProvider>
 
-namespace QMatrixClient {
-class Connection;
-}
+#include "connection.h"
 
-class ThumbnailResponse : public QQuickImageResponse {
- public:
-  ThumbnailResponse(QMatrixClient::Connection* c, QString mediaId,
-                    const QSize& requestedSize);
-  ~ThumbnailResponse() override = default;
-
-  void startRequest();
-
- private:
-  QMatrixClient::Connection* c;
-  const QString mediaId;
-  const QSize requestedSize;
-  QMatrixClient::MediaThumbnailJob* job = nullptr;
-
-  QImage image;
-  QString errorStr;
-  mutable QReadWriteLock lock;
-
-  void prepareResult();
-  QQuickTextureFactory* textureFactory() const override;
-  QString errorString() const override;
-  void cancel() override;
-};
-
-class ImageProvider : public QObject, public QQuickAsyncImageProvider {
+class ImageProvider : public QObject, public QQuickImageProvider {
   Q_OBJECT
   Q_PROPERTY(QMatrixClient::Connection* connection READ connection WRITE
                  setConnection NOTIFY connectionChanged)
  public:
-  explicit ImageProvider() : QObject(), QQuickAsyncImageProvider() {}
+  explicit ImageProvider(QObject* parent = nullptr);
 
-  QQuickImageResponse* requestImageResponse(
-      const QString& id, const QSize& requestedSize) override;
+  QImage requestImage(const QString& id, QSize* pSize,
+                      const QSize& requestedSize) override;
+
+  void initializeEngine(QQmlEngine* engine, const char* uri);
 
   QMatrixClient::Connection* connection() { return m_connection; }
-  void setConnection(QMatrixClient::Connection* connection) {
-    m_connection.store(connection);
+  void setConnection(QMatrixClient::Connection* newConnection) {
+    if (m_connection != newConnection) {
+      m_connection = newConnection;
+      emit connectionChanged();
+    }
   }
 
  signals:
   void connectionChanged();
 
  private:
-  QAtomicPointer<QMatrixClient::Connection> m_connection;
+  QReadWriteLock m_lock;
+  QMatrixClient::Connection* m_connection = nullptr;
 };
 
 #endif  // IMAGEPROVIDER_H

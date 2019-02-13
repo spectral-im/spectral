@@ -24,18 +24,6 @@
 using namespace QMatrixClient;
 
 int main(int argc, char *argv[]) {
-#if defined(Q_OS_LINUX) || defined(Q_OS_WIN) || defined(Q_OS_FREEBSD)
-  if (qgetenv("QT_SCALE_FACTOR").size() == 0) {
-    QSettings settings("ENCOM", "Spectral");
-    float factor = settings.value("Interface/dpi", 100).toFloat() / 100;
-
-    qDebug() << "DPI:" << factor;
-
-    if (factor != -1)
-      qputenv("QT_SCALE_FACTOR", QString::number(factor).toUtf8());
-  }
-#endif
-
   QNetworkProxyFactory::setUseSystemConfiguration(true);
 
   QApplication app(argc, argv);
@@ -63,14 +51,8 @@ int main(int argc, char *argv[]) {
   qRegisterMetaType<SpectralRoom *>("SpectralRoom*");
   qRegisterMetaType<SpectralUser *>("SpectralUser*");
 
-#if defined(BUNDLE_FONT)
-  QFontDatabase::addApplicationFont(":/assets/font/roboto.ttf");
-  QFontDatabase::addApplicationFont(":/assets/font/twemoji.ttf");
-#endif
-
   QQmlApplicationEngine engine;
 
-  engine.addImportPath("qrc:/imports");
   ImageProvider *m_provider = new ImageProvider();
   engine.rootContext()->setContextProperty("imageProvider", m_provider);
   engine.addImageProvider(QLatin1String("mxc"), m_provider);

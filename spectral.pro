@@ -14,6 +14,9 @@ CONFIG += link_pkgconfig
 
 TARGET = spectral
 
+isEmpty(KIRIGAMI) {
+    KIRIGAMI = false
+}
 isEmpty(USE_SYSTEM_SORTFILTERPROXYMODEL) {
     USE_SYSTEM_SORTFILTERPROXYMODEL = false
 }
@@ -22,9 +25,6 @@ isEmpty(USE_SYSTEM_QMATRIXCLIENT) {
 }
 isEmpty(USE_SYSTEM_CMARK) {
     USE_SYSTEM_CMARK = false
-}
-isEmpty(BUNDLE_FONT) {
-    BUNDLE_FONT = false
 }
 
 $$USE_SYSTEM_QMATRIXCLIENT {
@@ -96,19 +96,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 RESOURCES += res.qrc
-$$BUNDLE_FONT {
-    message("Bundling fonts.")
-    DEFINES += BUNDLE_FONT
-    RESOURCES += font.qrc
-} else {
-    message("Using fonts from operating system.")
-}
-
-# Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH += imports/
-
-# Additional import path used to resolve QML modules just for Qt Quick Designer
-QML_DESIGNER_IMPORT_PATH += imports/
 
 # Default rules for deployment.
 unix:!mac:isEmpty(PREFIX) {
