@@ -3,7 +3,7 @@ stages:
   - deploy
 
 build-flatpak:
-  image: black0/flatpak
+  image: registry.gitlab.com/b0/flatpak-kde-docker
   stage: build
   before_script:
     - git submodule update --init --recursive
@@ -17,7 +17,7 @@ build-flatpak:
     - flatpak/spectral.flatpak
 
 build-appimage:
-  image: black0/qt
+  image: registry.gitlab.com/b0/qt-docker
   stage: build
   before_script:
     - git submodule update --init --recursive
