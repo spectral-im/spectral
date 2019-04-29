@@ -13,6 +13,7 @@ build-flatpak:
     - flatpak build-bundle repo spectral.flatpak org.eu.encom.spectral
     - cd ../
   cache:
+    key: flatpak
     paths:
     - flatpak/.flatpak-builder
   artifacts:
@@ -34,6 +35,7 @@ build-appimage:
     - make INSTALL_ROOT=appdir install
     - /usr/bin/linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/org.eu.encom.spectral.desktop -appimage -qmldir=qml -qmldir=imports -qmake=/opt/qt512/bin/qmake
   cache:
+    key: ccache
     paths:
     - ccache/
 
