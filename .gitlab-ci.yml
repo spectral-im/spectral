@@ -9,7 +9,7 @@ build-flatpak:
     - git submodule update --init --recursive
   script:
     - cd flatpak
-    - flatpak-builder --force-clean --repo=repo build-dir org.eu.encom.spectral.yaml
+    - flatpak-builder --force-clean --ccache --repo=repo build-dir org.eu.encom.spectral.yaml
     - flatpak build-bundle repo spectral.flatpak org.eu.encom.spectral
     - cd ../
   cache:
@@ -29,7 +29,7 @@ build-appimage:
     - export CCACHE_BASEDIR=${CI_PROJECT_DIR}
     - export CCACHE_DIR=${CI_PROJECT_DIR}/ccache
     - /opt/qt512/bin/qt512-env.sh
-    - /opt/qt512/bin/qmake CONFIG+=debug CONFIG+=qml_debug PREFIX=/usr QMAKE_CXX+=ccache
+    - /opt/qt512/bin/qmake CONFIG+=debug CONFIG+=qml_debug CONFIG+=ccache PREFIX=/usr
     - make
     - make INSTALL_ROOT=appdir install
     - /usr/bin/linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/org.eu.encom.spectral.desktop -appimage -qmldir=qml -qmldir=imports -qmake=/opt/qt512/bin/qmake
