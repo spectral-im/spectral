@@ -25,7 +25,7 @@ build-appimage:
     - qmake CONFIG+=debug CONFIG+=qml_debug PREFIX=/usr
     - make
     - make INSTALL_ROOT=appdir install
-    - /usr/bin/linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/org.eu.encom.spectral.desktop -appimage -qmldir=qml -qmldir=imports -unsupported-allow-new-glibc
+    - /usr/bin/linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/org.eu.encom.spectral.desktop -appimage -qmldir=qml -qmldir=imports
   artifacts:
     paths:
     - Spectral*.AppImage
