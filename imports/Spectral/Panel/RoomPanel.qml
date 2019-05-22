@@ -3,10 +3,12 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Controls.Material 2.12
 import Qt.labs.qmlmodels 1.0
+import Qt.labs.platform 1.0
 
 import Spectral.Component 2.0
 import Spectral.Component.Emoji 2.0
 import Spectral.Component.Timeline 2.0
+import Spectral.Dialog 2.0
 import Spectral.Effect 2.0
 
 import Spectral 0.1
@@ -21,6 +23,121 @@ Item {
     MessageEventModel {
         id: messageEventModel
         room: currentRoom
+    }
+
+    DropArea {
+        anchors.fill: parent
+
+        enabled: currentRoom
+
+        onDropped: {
+            if (!drop.hasUrls) return
+
+            roomPanelInput.attach(drop.urls[0])
+        }
+    }
+
+    ImageClipboard {
+        id: imageClipboard
+    }
+
+    Popup {
+        anchors.centerIn: parent
+
+        id: attachDialog
+
+        padding: 16
+
+        contentItem: RowLayout {
+            Control {
+                Layout.preferredWidth: 160
+                Layout.fillHeight: true
+
+                padding: 16
+
+                contentItem: ColumnLayout {
+                    spacing: 16
+
+                    MaterialIcon {
+                        Layout.alignment: Qt.AlignHCenter
+
+                        icon: "\ue2c8"
+                        font.pixelSize: 64
+                        color: MPalette.lighter
+                    }
+
+                    Label {
+                        Layout.alignment: Qt.AlignHCenter
+
+                        text: "Choose local file"
+                    }
+                }
+
+                background: RippleEffect {
+                    onClicked: {
+                        attachDialog.close()
+
+                        var fileDialog = openFileDialog.createObject(ApplicationWindow.overlay)
+
+                        fileDialog.chosen.connect(function(path) {
+                            if (!path) return
+
+                            roomPanelInput.attach(path)
+                        })
+
+                        fileDialog.open()
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.preferredWidth: 1
+                Layout.fillHeight: true
+
+                color: MPalette.banner
+            }
+
+            Control {
+                Layout.preferredWidth: 160
+                Layout.fillHeight: true
+
+                padding: 16
+
+                contentItem: ColumnLayout {
+                    spacing: 16
+
+                    MaterialIcon {
+                        Layout.alignment: Qt.AlignHCenter
+
+                        icon: "\ue410"
+                        font.pixelSize: 64
+                        color: MPalette.lighter
+                    }
+
+                    Label {
+                        Layout.alignment: Qt.AlignHCenter
+
+                        text: "Clipboard image"
+                        color: MPalette.foreground
+                    }
+                }
+
+                background: RippleEffect {
+                    onClicked: {
+                        var localPath = StandardPaths.writableLocation(StandardPaths.CacheLocation) + "/screenshots/" + (new Date()).getTime() + ".png"
+                         if (!imageClipboard.saveImage(localPath)) return
+                        roomPanelInput.attach(localPath)
+                        attachDialog.close()
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: openFileDialog
+
+        OpenFileDialog {}
     }
 
     Column {
@@ -62,6 +179,14 @@ Item {
         fillMode: Image.PreserveAspectCrop
     }
 
+    Rectangle {
+        anchors.fill: parent
+
+        visible: currentRoom && !MSettings.timelineBackground
+
+        color: MSettings.darkTheme ? "#242424" : "#EBEFF2"
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -75,10 +200,6 @@ Item {
 
             id: roomHeader
 
-            avatar: currentRoom ? currentRoom.avatarMediaId : ""
-            topic: currentRoom ? (currentRoom.topic).replace(/(\r\n\t|\n|\r\t)/gm,"") : ""
-            atTop: messageListView.atYBeginning
-
             onClicked: roomDrawer.visible ? roomDrawer.close() : roomDrawer.open()
         }
 
@@ -86,10 +207,12 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.maximumWidth: 960
+            Layout.alignment: Qt.AlignHCenter
             Layout.leftMargin: 16
             Layout.rightMargin: 16
             Layout.bottomMargin: 16
-            Layout.alignment: Qt.AlignHCenter
+
+            width: Math.min(parent.width - 32, 960)
 
             spacing: 16
 
@@ -99,7 +222,7 @@ Item {
 
                 id: messageListView
 
-                spacing: 4
+                spacing: 2
 
                 displayMarginBeginning: 100
                 displayMarginEnd: 100
@@ -147,41 +270,15 @@ Item {
 
                     DelegateChoice {
                         roleValue: "state"
-                        delegate: ColumnLayout {
-                            width: messageListView.width
-                            spacing: 4
-
-                            SectionDelegate {
-                                Layout.alignment: Qt.AlignHCenter
-                                Layout.margins: 16
-
-                                visible: section !== aboveSection || Math.abs(time - aboveTime) > 600000
-                            }
-
-                            StateDelegate {
-                                Layout.maximumWidth: parent.width
-                                Layout.alignment: Qt.AlignHCenter
-                            }
+                        delegate: StateDelegate {
+                            anchors.horizontalCenter: parent.horizontalCenter
                         }
                     }
 
                     DelegateChoice {
                         roleValue: "emote"
-                        delegate: ColumnLayout {
-                            width: messageListView.width
-                            spacing: 4
-
-                            SectionDelegate {
-                                Layout.alignment: Qt.AlignHCenter
-                                Layout.margins: 16
-
-                                visible: section !== aboveSection || Math.abs(time - aboveTime) > 600000
-                            }
-
-                            StateDelegate {
-                                Layout.maximumWidth: parent.width
-                                Layout.alignment: Qt.AlignHCenter
-                            }
+                        delegate: StateDelegate {
+                            anchors.horizontalCenter: parent.horizontalCenter
                         }
                     }
 
@@ -189,16 +286,17 @@ Item {
                         roleValue: "message"
                         delegate: ColumnLayout {
                             width: messageListView.width
-                            spacing: 4
 
                             SectionDelegate {
                                 Layout.alignment: Qt.AlignHCenter
-                                Layout.margins: 16
+                                Layout.maximumWidth: parent.width
 
-                                visible: section !== aboveSection || Math.abs(time - aboveTime) > 600000
+                                visible: showSection
                             }
 
-                            MessageDelegate {}
+                            MessageDelegate {
+                                Layout.alignment: sentByMe ? Qt.AlignRight : Qt.AlignLeft
+                            }
                         }
                     }
 
@@ -206,16 +304,17 @@ Item {
                         roleValue: "notice"
                         delegate: ColumnLayout {
                             width: messageListView.width
-                            spacing: 4
 
                             SectionDelegate {
                                 Layout.alignment: Qt.AlignHCenter
-                                Layout.margins: 16
+                                Layout.maximumWidth: parent.width
 
-                                visible: section !== aboveSection || Math.abs(time - aboveTime) > 600000
+                                visible: showSection
                             }
 
-                            MessageDelegate {}
+                            MessageDelegate {
+                                Layout.alignment: sentByMe ? Qt.AlignRight : Qt.AlignLeft
+                            }
                         }
                     }
 
@@ -223,17 +322,34 @@ Item {
                         roleValue: "image"
                         delegate: ColumnLayout {
                             width: messageListView.width
-                            spacing: 4
 
                             SectionDelegate {
                                 Layout.alignment: Qt.AlignHCenter
-                                Layout.margins: 16
+                                Layout.maximumWidth: parent.width
 
-                                visible: section !== aboveSection || Math.abs(time - aboveTime) > 600000
+                                visible: showSection
                             }
 
                             ImageDelegate {
+                                Layout.alignment: sentByMe ? Qt.AlignRight : Qt.AlignLeft
+                            }
+                        }
+                    }
+
+                    DelegateChoice {
+                        roleValue: "video"
+                        delegate: ColumnLayout {
+                            width: messageListView.width
+
+                            SectionDelegate {
+                                Layout.alignment: Qt.AlignHCenter
                                 Layout.maximumWidth: parent.width
+
+                                visible: showSection
+                            }
+
+                            VideoDelegate {
+                                Layout.alignment: sentByMe ? Qt.AlignRight : Qt.AlignLeft
                             }
                         }
                     }
@@ -242,19 +358,23 @@ Item {
                         roleValue: "file"
                         delegate: ColumnLayout {
                             width: messageListView.width
-                            spacing: 4
 
                             SectionDelegate {
                                 Layout.alignment: Qt.AlignHCenter
-                                Layout.margins: 16
+                                Layout.maximumWidth: parent.width
 
-                                visible: section !== aboveSection || Math.abs(time - aboveTime) > 600000
+                                visible: showSection
                             }
 
                             FileDelegate {
-                                Layout.maximumWidth: parent.width
+                                Layout.alignment: sentByMe ? Qt.AlignRight : Qt.AlignLeft
                             }
                         }
+                    }
+
+                    DelegateChoice {
+                        roleValue: "other"
+                        delegate: Item {}
                     }
                 }
 
@@ -270,7 +390,7 @@ Item {
                     rightPadding: 24
 
                     Material.foreground: MPalette.foreground
-                    Material.background: MPalette.banner
+                    Material.background: MPalette.background
 
                     text: "Go to read marker"
 
@@ -328,7 +448,7 @@ Item {
                 }
 
                 background: Rectangle {
-                    color: MPalette.banner
+                    color: MPalette.background
                     radius: height / 2
                 }
             }

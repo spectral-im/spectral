@@ -84,6 +84,8 @@ class SpectralRoom : public Room {
 
   Q_INVOKABLE QString postMarkdownText(const QString& markdown);
 
+  Q_INVOKABLE QUrl urlToMxcUrl(QUrl mxcUrl);
+
   template <typename BaseEventT>
   QString eventToString(const BaseEventT& evt,
                         Qt::TextFormat format = Qt::PlainText) {
@@ -132,18 +134,20 @@ class SpectralRoom : public Room {
               QString text{};
               if (e.isRename()) {
                 if (e.displayName().isEmpty())
-                  text = tr("cleared the display name");
+                  text = tr("cleared their display name");
                 else
-                  text = tr("changed the display name to %1")
+                  text = tr("changed their display name to %1")
                              .arg(e.displayName().toHtmlEscaped());
               }
               if (e.isAvatarUpdate()) {
                 if (!text.isEmpty())
                   text += " and ";
                 if (e.avatarUrl().isEmpty())
-                  text += tr("cleared the avatar");
+                  text += tr("cleared their avatar");
+                else if (e.prevContent()->avatarUrl.isEmpty())
+                  text += tr("set an avatar");
                 else
-                  text += tr("updated the avatar");
+                  text += tr("updated their avatar");
               }
               return text;
             }
@@ -250,7 +254,7 @@ class SpectralRoom : public Room {
   void fileUploadingProgressChanged();
 
  public slots:
-  void chooseAndUploadFile();
+  void uploadFile(const QUrl& url, const QString& body = "");
   void acceptInvitation();
   void forget();
   void sendTypingNotification(bool isTyping);

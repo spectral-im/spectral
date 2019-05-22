@@ -2,6 +2,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtGraphicalEffects 1.0
 
+import Spectral.Setting 0.1
+
 Item {
     property string hint: "H"
     property string source: ""
@@ -18,7 +20,6 @@ Item {
         sourceSize.width: width
         sourceSize.height: width
         fillMode: Image.PreserveAspectCrop
-        mipmap: true
         layer.enabled: true
         layer.effect: OpacityMask {
             maskSource: Rectangle {
@@ -36,7 +37,7 @@ Item {
         visible: !realSource || image.status != Image.Ready
 
         radius: height / 2
-        color: stringToColor(hint)
+        color: MPalette.accent
         antialiasing: true
 
         Label {
@@ -45,20 +46,22 @@ Item {
             color: "white"
             text: hint[0].toUpperCase()
             font.pixelSize: root.width / 2
-            font.bold: true
+            font.weight: Font.Light
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
         }
     }
 
-    function stringToColor(str) {
-        var hash = 0;
-        for (var i = 0; i < str.length; i++) {
-            hash = str.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        var colour = '#';
-        for (var j = 0; j < 3; j++) {
-            var value = (hash >> (j * 8)) & 0xFF;
-            colour += ('00' + value.toString(16)).substr(-2);
-        }
-        return colour;
-    }
+//    function stringToColor(str) {
+//        var hash = 0;
+//        for (var i = 0; i < str.length; i++) {
+//            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+//        }
+//        var colour = '#';
+//        for (var j = 0; j < 3; j++) {
+//            var value = (hash >> (j * 8)) & 0xFF;
+//            colour += ('00' + value.toString(16)).substr(-2);
+//        }
+//        return colour;
+//    }
 }

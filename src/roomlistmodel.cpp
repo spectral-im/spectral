@@ -46,8 +46,11 @@ void RoomListModel::setConnection(Connection* connection) {
   connect(connection, &Connection::directChatsListChanged, this,
           [=](Connection::DirectChatsMap additions,
               Connection::DirectChatsMap removals) {
-            for (QString roomID : additions.values() + removals.values())
-              refresh(static_cast<SpectralRoom*>(connection->room(roomID)));
+            for (QString roomID : additions.values() + removals.values()) {
+              auto room = connection->room(roomID);
+              if (room)
+                refresh(static_cast<SpectralRoom*>(room));
+            }
           });
 
   doResetModel();
@@ -77,11 +80,9 @@ void RoomListModel::doAddRoom(Room* r) {
 }
 
 void RoomListModel::connectRoomSignals(SpectralRoom* room) {
-  connect(room, &Room::displaynameChanged, this, [=] { namesChanged(room); });
-  connect(room, &Room::unreadMessagesChanged, this,
-          [=] { unreadMessagesChanged(room); });
-  connect(room, &Room::notificationCountChanged, this,
-          [=] { unreadMessagesChanged(room); });
+  connect(room, &Room::displaynameChanged, this, [=] { refresh(room); });
+  connect(room, &Room::unreadMessagesChanged, this, [=] { refresh(room); });
+  connect(room, &Room::notificationCountChanged, this, [=] { refresh(room); });
   connect(room, &Room::avatarChanged, this,
           [this, room] { refresh(room, {AvatarRole}); });
   connect(room, &Room::tagsChanged, this, [=] { refresh(room); });
@@ -205,11 +206,6 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const {
   return QVariant();
 }
 
-void RoomListModel::namesChanged(SpectralRoom* room) {
-  int row = m_rooms.indexOf(room);
-  emit dataChanged(index(row), index(row));
-}
-
 void RoomListModel::refresh(SpectralRoom* room, const QVector<int>& roles) {
   const auto it = std::find(m_rooms.begin(), m_rooms.end(), room);
   if (it == m_rooms.end()) {
@@ -218,11 +214,6 @@ void RoomListModel::refresh(SpectralRoom* room, const QVector<int>& roles) {
   }
   const auto idx = index(it - m_rooms.begin());
   emit dataChanged(idx, idx, roles);
-}
-
-void RoomListModel::unreadMessagesChanged(SpectralRoom* room) {
-  int row = m_rooms.indexOf(room);
-  emit dataChanged(index(row), index(row));
 }
 
 QHash<int, QByteArray> RoomListModel::roleNames() const {

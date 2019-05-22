@@ -14,7 +14,7 @@ import Spectral 0.1
 import Spectral.Setting 0.1
 
 ApplicationWindow {
-    readonly property bool inPortrait: window.width < window.height
+    readonly property bool inPortrait: window.width < 640
 
     Material.theme: MPalette.theme
     Material.background: MPalette.background
@@ -56,12 +56,17 @@ ApplicationWindow {
 
         quitOnLastWindowClosed: !MSettings.showTray
 
+        onErrorOccured: errorControl.show(error + ": " + detail, 3000)
+    }
+
+    NotificationsManager {
+        id: notificationsManager
+
         onNotificationClicked: {
             roomListForm.enteredRoom = spectralController.connection.room(roomId)
             roomForm.goToEvent(eventId)
             showWindow()
         }
-        onErrorOccured: errorControl.show(error + ": " + detail, 3000)
     }
 
     Shortcut {

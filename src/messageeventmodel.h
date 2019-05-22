@@ -8,20 +8,16 @@
 
 class MessageEventModel : public QAbstractListModel {
   Q_OBJECT
-  Q_PROPERTY(SpectralRoom* room READ getRoom WRITE setRoom NOTIFY roomChanged)
+  Q_PROPERTY(SpectralRoom* room READ room WRITE setRoom NOTIFY roomChanged)
 
  public:
   enum EventRoles {
     EventTypeRole = Qt::UserRole + 1,
     MessageRole,
-    AboveEventTypeRole,
     EventIdRole,
     TimeRole,
-    AboveTimeRole,
     SectionRole,
-    AboveSectionRole,
     AuthorRole,
-    AboveAuthorRole,
     ContentRole,
     ContentTypeRole,
     HighlightRole,
@@ -30,17 +26,29 @@ class MessageEventModel : public QAbstractListModel {
     LongOperationRole,
     AnnotationRole,
     UserMarkerRole,
+    // For reply
     ReplyEventIdRole,
     ReplyAuthorRole,
     ReplyDisplayRole,
+
+    ShowAuthorRole,
+    ShowSectionRole,
+    BubbleShapeRole,
     // For debugging
     EventResolvedTypeRole,
+  };
+
+  enum BubbleShapes {
+    NoShape = 0,
+    BeginShape,
+    MiddleShape,
+    EndShape,
   };
 
   explicit MessageEventModel(QObject* parent = nullptr);
   ~MessageEventModel();
 
-  SpectralRoom* getRoom() { return m_currentRoom; }
+  SpectralRoom* room() { return m_currentRoom; }
   void setRoom(SpectralRoom* room);
 
   int rowCount(const QModelIndex& parent = QModelIndex()) const override;

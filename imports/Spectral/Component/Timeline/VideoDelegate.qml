@@ -3,6 +3,7 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.0
+import QtMultimedia 5.12
 import Qt.labs.platform 1.0 as Platform
 
 import Spectral 0.1
@@ -19,6 +20,7 @@ RowLayout {
     readonly property bool sentByMe: author === currentRoom.localUser
 
     property bool openOnFinished: false
+    property bool playOnFinished: false
     readonly property bool downloaded: progressInfo && progressInfo.completed
 
     id: root
@@ -31,6 +33,10 @@ RowLayout {
         if (downloaded && openOnFinished) {
             openSavedFile()
             openOnFinished = false
+        }
+        if (downloaded && playOnFinished) {
+            playSavedFile()
+            playOnFinished = false
         }
     }
 
@@ -65,33 +71,42 @@ RowLayout {
         visible: !(sentByMe || avatarVisible)
     }
 
-    BusyIndicator {
-        Layout.preferredWidth: 64
-        Layout.preferredHeight: 64
+    Video {
+        Layout.fillWidth: true
+        Layout.preferredHeight: width
 
-        visible: img.status == Image.Loading
-    }
+        id: vid
 
-    Image {
-        Layout.maximumWidth: messageListView.width - (!sentByMe ? 36 + root.spacing : 0) - 48
+        source: progressInfo.localPath
 
-        id: img
+        loops: MediaPlayer.Infinite
+        autoPlay: true
 
-        source: "image://mxc/" +
-                (content.info && content.info.thumbnail_info ?
-                     content.thumbnailMediaId : content.mediaId)
-
-        sourceSize.width: 720
-        sourceSize.height: 720
-
-        fillMode: Image.PreserveAspectCrop
+        fillMode: VideoOutput.PreserveAspectFit
 
         layer.enabled: true
         layer.effect: OpacityMask {
             maskSource: Rectangle {
-                width: img.width
-                height: img.height
+                width: vid.width
+                height: vid.height
                 radius: 18
+            }
+        }
+
+        Label {
+            anchors.centerIn: parent
+
+            visible: vid.playbackState != MediaPlayer.PlayingState
+            color: "white"
+            text: "Video"
+            font.pixelSize: 16
+
+            padding: 8
+
+            background: Rectangle {
+                radius: height / 2
+                color: "black"
+                opacity: 0.3
             }
         }
 
@@ -148,7 +163,7 @@ RowLayout {
 
             id: messageMouseArea
 
-            onPrimaryClicked: fullScreenImage.createObject(parent, {"filename": eventId, "localPath": currentRoom.urlToDownload(eventId)}).show()
+            onPrimaryClicked: downloadAndPlay()
 
             onSecondaryClicked: {
                 var contextMenu = imageDelegateContextMenu.createObject(ApplicationWindow.overlay)
@@ -187,12 +202,6 @@ RowLayout {
 
                 FileDelegateContextMenu {}
             }
-
-            Component {
-                id: fullScreenImage
-
-                FullScreenImage {}
-            }
         }
     }
 
@@ -218,9 +227,25 @@ RowLayout {
         }
     }
 
+    function downloadAndPlay()
+    {
+        if (downloaded) playSavedFile()
+        else
+        {
+            playOnFinished = true
+            currentRoom.downloadFile(eventId, Platform.StandardPaths.writableLocation(Platform.StandardPaths.CacheLocation) + "/" + eventId.replace(":", "_").replace("/", "_").replace("+", "_") + currentRoom.fileNameToDownload(eventId))
+        }
+    }
+
     function openSavedFile()
     {
         if (Qt.openUrlExternally(progressInfo.localPath)) return;
         if (Qt.openUrlExternally(progressInfo.localDir)) return;
+    }
+
+    function playSavedFile()
+    {
+        vid.stop()
+        vid.play()
     }
 }

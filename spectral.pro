@@ -25,7 +25,7 @@ $$USE_SYSTEM_QMATRIXCLIENT {
     PKGCONFIG += QMatrixClient
 } else {
     message("Falling back to built-in libQMatrixClient.")
-    include(include/libqmatrixclient/libqmatrixclient.pri)
+    include(include/libQuotient/libqmatrixclient.pri)
 }
 $$USE_SYSTEM_SORTFILTERPROXYMODEL {
     PKGCONFIG += SortFilterProxyModel
@@ -103,11 +103,11 @@ win32 {
 }
 
 mac {
-	QMAKE_TARGET_BUNDLE_PREFIX = org.eu.encom
+    QMAKE_TARGET_BUNDLE_PREFIX = org.eu.encom
 
-	VERSION = 0.0.0.$$system(git rev-list --count HEAD)
-	INFO_PLIST_PATH = $$shell_quote($${OUT_PWD}/$${TARGET}.app/Contents/Info.plist)
-	QMAKE_POST_LINK += /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $${VERSION}\" $${INFO_PLIST_PATH}
+    VERSION = 0.0.0.$$system(git rev-list --count HEAD)
+    INFO_PLIST_PATH = $$shell_quote($${OUT_PWD}/$${TARGET}.app/Contents/Info.plist)
+    QMAKE_POST_LINK += /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $${VERSION}\" $${INFO_PLIST_PATH}
     QMAKE_POST_LINK += && /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_PATH}
 
     ICON = assets/img/icon.icns
@@ -117,7 +117,6 @@ mac {
 HEADERS += \
     src/controller.h \
     src/roomlistmodel.h \
-    src/imageprovider.h \
     src/messageeventmodel.h \
     src/emojimodel.h \
     src/spectralroom.h \
@@ -125,19 +124,22 @@ HEADERS += \
     src/accountlistmodel.h \
     src/spectraluser.h \
     src/notifications/manager.h \
-    src/utils.h
+    src/utils.h \
+    src/imageclipboard.h \
+    src/matriximageprovider.h
 
 SOURCES += src/main.cpp \
     src/controller.cpp \
     src/roomlistmodel.cpp \
-    src/imageprovider.cpp \
     src/messageeventmodel.cpp \
     src/emojimodel.cpp \
     src/spectralroom.cpp \
     src/userlistmodel.cpp \
     src/accountlistmodel.cpp \
     src/spectraluser.cpp \
-    src/utils.cpp
+    src/utils.cpp \
+    src/imageclipboard.cpp \
+    src/matriximageprovider.cpp
 
 unix:!mac {
     SOURCES += src/notifications/managerlinux.cpp

@@ -31,7 +31,7 @@ Item {
 
         connection: root.connection
 
-        onNewMessage: if (!window.active && MSettings.showNotification) spectralController.postNotification(roomId, eventId, roomName, senderName, text, icon)
+        onNewMessage: if (!window.active && MSettings.showNotification) notificationsManager.postNotification(roomId, eventId, roomName, senderName, text, icon)
     }
 
     SortFilterProxyModel {
@@ -54,6 +54,16 @@ Item {
 
         sorters: [
             RoleSorter { roleName: "category" },
+            ExpressionSorter {
+                expression: {
+                    return modelLeft.highlightCount > 0;
+                }
+            },
+            ExpressionSorter {
+                expression: {
+                    return modelLeft.notificationCount > 0;
+                }
+            },
             RoleSorter {
                 roleName: "lastActiveTime"
                 sortOrder: Qt.DescendingOrder
@@ -82,6 +92,11 @@ Item {
                 expression: category === 4 || category === 5
             }
         ]
+    }
+
+    Shortcut {
+        sequence: "Ctrl+F"
+        onActivated: searchField.forceActiveFocus()
     }
 
     ColumnLayout {
@@ -232,17 +247,6 @@ Item {
                     opacity: 0.1
                 }
 
-                Rectangle {
-                    width: unreadCount >= 0 ? 4 : 0
-                    height: parent.height
-
-                    color: Material.accent
-
-                    Behavior on width {
-                        PropertyAnimation { easing.type: Easing.InOutCubic; duration: 200 }
-                    }
-                }
-
                 RowLayout {
                     anchors.fill: parent
                     anchors.margins: 12
@@ -269,6 +273,7 @@ Item {
                             text: name || "No Name"
                             color: MPalette.foreground
                             font.pixelSize: 16
+                            font.bold: unreadCount >= 0
                             elide: Text.ElideRight
                             wrapMode: Text.NoWrap
                         }
@@ -277,7 +282,7 @@ Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
 
-                            text: (lastEvent == "" ? topic : lastEvent).replace(/(\r\n\t|\n|\r\t)/gm,"")
+                            text: (lastEvent == "" ? topic : lastEvent).replace(/(\r\n\t|\n|\r\t)/gm," ")
                             color: MPalette.lighter
                             font.pixelSize: 13
                             elide: Text.ElideRight

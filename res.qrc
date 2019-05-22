@@ -56,5 +56,8 @@
         <file>imports/Spectral/Dialog/FontFamilyDialog.qml</file>
         <file>imports/Spectral/Dialog/AccountDetailDialog.qml</file>
         <file>imports/Spectral/Dialog/OpenFileDialog.qml</file>
+        <file>imports/Spectral/Dialog/OpenFolderDialog.qml</file>
+        <file>imports/Spectral/Component/Timeline/VideoDelegate.qml</file>
+        <file>imports/Spectral/Component/AutoRectangle.qml</file>
     </qresource>
 </RCC>

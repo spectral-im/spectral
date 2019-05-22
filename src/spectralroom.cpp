@@ -8,6 +8,7 @@
 #include "csapi/typing.h"
 #include "events/accountdataevents.h"
 #include "events/typingevent.h"
+#include "jobs/downloadfilejob.h"
 
 #include <QFileDialog>
 #include <QFileInfo>
@@ -43,33 +44,33 @@ inline QSize getImageSize(const QUrl& imageUrl) {
   return reader.size();
 }
 
-void SpectralRoom::chooseAndUploadFile() {
-  auto localFile = QFileDialog::getOpenFileUrl(Q_NULLPTR, tr("Save File as"));
-  if (!localFile.isEmpty()) {
-    QString txnID = postFile(localFile.fileName(), localFile, false);
-    setHasFileUploading(true);
-    connect(this, &Room::fileTransferCompleted,
-            [=](QString id, QUrl localFile, QUrl mxcUrl) {
-              if (id == txnID) {
-                setFileUploadingProgress(0);
-                setHasFileUploading(false);
-              }
-            });
-    connect(this, &Room::fileTransferFailed, [=](QString id, QString error) {
-      if (id == txnID) {
-        setFileUploadingProgress(0);
-        setHasFileUploading(false);
-      }
-    });
-    connect(
-        this, &Room::fileTransferProgress,
-        [=](QString id, qint64 progress, qint64 total) {
-          if (id == txnID) {
-            qDebug() << "Progress:" << progress << total;
-            setFileUploadingProgress(int(float(progress) / float(total) * 100));
-          }
-        });
-  }
+void SpectralRoom::uploadFile(const QUrl& url, const QString& body) {
+  if (url.isEmpty())
+    return;
+
+  QString txnID = postFile(body.isEmpty() ? url.fileName() : body, url, false);
+  setHasFileUploading(true);
+  connect(this, &Room::fileTransferCompleted,
+          [=](QString id, QUrl localFile, QUrl mxcUrl) {
+            if (id == txnID) {
+              setFileUploadingProgress(0);
+              setHasFileUploading(false);
+            }
+          });
+  connect(this, &Room::fileTransferFailed, [=](QString id, QString error) {
+    if (id == txnID) {
+      setFileUploadingProgress(0);
+      setHasFileUploading(false);
+    }
+  });
+  connect(
+      this, &Room::fileTransferProgress,
+      [=](QString id, qint64 progress, qint64 total) {
+        if (id == txnID) {
+          qDebug() << "Progress:" << progress << total;
+          setFileUploadingProgress(int(float(progress) / float(total) * 100));
+        }
+      });
 }
 
 void SpectralRoom::acceptInvitation() {
@@ -109,7 +110,8 @@ QString SpectralRoom::lastEvent() {
   if (timelineSize() == 0)
     return "";
   const RoomEvent* lastEvent = messageEvents().rbegin()->get();
-  return user(lastEvent->senderId())->displayname() + ": " +
+  return user(lastEvent->senderId())->displayname() +
+         (lastEvent->isStateEvent() ? " " : ": ") +
          utils::removeReply(eventToString(*lastEvent));
 }
 
@@ -232,4 +234,8 @@ QString SpectralRoom::postMarkdownText(const QString& markdown) {
   hoedown_html_renderer_free(renderer);
 
   return postHtmlText(markdown, result);
+}
+
+QUrl SpectralRoom::urlToMxcUrl(QUrl mxcUrl) {
+  return DownloadFileJob::makeRequestUrl(connection()->homeserver(), mxcUrl);
 }

@@ -5,6 +5,7 @@ import QtQuick.Controls.Material 2.12
 
 import Spectral.Component 2.0
 import Spectral.Component.Emoji 2.0
+import Spectral.Dialog 2.0
 import Spectral.Effect 2.0
 import Spectral.Setting 0.1
 
@@ -21,6 +22,9 @@ Control {
     property int autoCompleteBeginPosition
     property int autoCompleteEndPosition
 
+    property bool hasAttachment: false
+    property url attachmentPath
+
     id: root
 
     padding: 0
@@ -31,7 +35,7 @@ Control {
 
         layer.enabled: true
         layer.effect: ElevationEffect {
-            elevation: 2
+            elevation: 1
         }
     }
 
@@ -51,6 +55,7 @@ Control {
             Avatar {
                 Layout.preferredWidth: 32
                 Layout.preferredHeight: 32
+                Layout.alignment: Qt.AlignTop
 
                 source: replyUser ? replyUser.avatarMediaId : ""
                 hint: replyUser ? replyUser.displayName : "No name"
@@ -60,7 +65,7 @@ Control {
                 Layout.fillWidth: true
 
                 text: replyContent
-                font.pixelSize: 16
+                font.pixelSize: 14
 
                 wrapMode: Label.Wrap
             }
@@ -170,13 +175,13 @@ Control {
                 Layout.alignment: Qt.AlignBottom
 
                 id: uploadButton
-                visible: !isReply
+                visible: !isReply && !hasAttachment
 
                 contentItem: MaterialIcon {
                     icon: "\ue226"
                 }
 
-                onClicked: currentRoom.chooseAndUploadFile()
+                onClicked: attachDialog.open()
 
                 BusyIndicator {
                     anchors.fill: parent
@@ -199,6 +204,51 @@ Control {
                 }
 
                 onClicked: clearReply()
+            }
+
+            Control {
+                Layout.margins: 6
+                Layout.preferredHeight: 36
+                Layout.alignment: Qt.AlignVCenter
+
+                visible: hasAttachment
+
+                rightPadding: 8
+
+                background: Rectangle {
+                    color: MPalette.accent
+                    radius: height / 2
+                    antialiasing: true
+                }
+
+                contentItem: RowLayout {
+                    spacing: 0
+
+                    ToolButton {
+                        Layout.preferredWidth: height
+                        Layout.fillHeight: true
+
+                        id: cancelAttachmentButton
+
+                        contentItem: MaterialIcon {
+                            icon: "\ue5cd"
+                            color: "white"
+                            font.pixelSize: 18
+                        }
+
+                        onClicked: {
+                            hasAttachment = false
+                            attachmentPath = ""
+                        }
+                    }
+
+                    Label {
+                        Layout.alignment: Qt.AlignVCenter
+
+                        text: attachmentPath != "" ? attachmentPath.toString().substring(attachmentPath.toString().lastIndexOf('/') + 1, attachmentPath.length) : ""
+                        color: "white"
+                    }
+                }
             }
 
             TextArea {
@@ -251,7 +301,7 @@ Control {
                 Keys.onReturnPressed: {
                     if (event.modifiers & Qt.ShiftModifier) {
                         insert(cursorPosition, "\n")
-                    } else if (text) {
+                    } else {
                         postMessage(text)
                         text = ""
                         closeAll()
@@ -303,8 +353,15 @@ Control {
                 }
 
                 function postMessage(text) {
-                    if (text.trim().length === 0) { return }
                     if(!currentRoom) { return }
+
+                    if (hasAttachment) {
+                        currentRoom.uploadFile(attachmentPath, text)
+                        clearAttachment()
+                        return
+                    }
+
+                    if (text.trim().length === 0) { return }
 
                     var PREFIX_ME = '/me '
                     var PREFIX_NOTICE = '/notice '
@@ -371,6 +428,10 @@ Control {
         }
     }
 
+    ImageClipboard {
+        id: imageClipboard
+    }
+
     function insert(str) {
         inputField.insert(inputField.cursorPosition, str)
     }
@@ -394,5 +455,15 @@ Control {
         replyItem.visible = false
         autoCompleteListView.visible = false
         emojiPicker.visible = false
+    }
+
+    function attach(localPath) {
+        hasAttachment = true
+        attachmentPath = localPath
+    }
+
+    function clearAttachment() {
+        hasAttachment = false
+        attachmentPath = ""
     }
 }

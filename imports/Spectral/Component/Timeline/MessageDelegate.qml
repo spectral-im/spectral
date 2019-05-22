@@ -12,40 +12,31 @@ import Spectral.Menu.Timeline 2.0
 import Spectral.Effect 2.0
 
 ColumnLayout {
-    readonly property bool avatarVisible: !sentByMe && (aboveAuthor !== author || aboveSection !== section || aboveEventType === "state" || aboveEventType === "emote" || aboveEventType === "other")
+    readonly property bool avatarVisible: !sentByMe && showAuthor
     readonly property bool sentByMe: author === currentRoom.localUser
+    readonly property bool darkBackground: !sentByMe
+    readonly property bool replyVisible: replyEventId || false
 
     signal saveFileAs()
     signal openExternally()
 
-    Layout.alignment: sentByMe ? Qt.AlignRight : Qt.AlignLeft
-
     id: root
+
+    z: -5
 
     spacing: 0
 
-    Label {
-        Layout.leftMargin: 48
-
-        text: author.displayName
-
-        visible: avatarVisible
-
-        font.pixelSize: 13
-        verticalAlignment: Text.AlignVCenter
-    }
-
     RowLayout {
-        z: -5
+        Layout.alignment: sentByMe ? Qt.AlignRight : Qt.AlignLeft
 
         id: messageRow
 
         spacing: 4
 
         Avatar {
-            Layout.preferredWidth: 32
-            Layout.preferredHeight: 32
-            Layout.alignment: Qt.AlignTop
+            Layout.preferredWidth: 36
+            Layout.preferredHeight: 36
+            Layout.alignment: Qt.AlignBottom
 
             visible: avatarVisible
             hint: author.displayName
@@ -66,31 +57,35 @@ ColumnLayout {
             }
         }
 
-        Label {
-            Layout.preferredWidth: 32
-            Layout.preferredHeight: 32
-            Layout.alignment: Qt.AlignTop
+        Item {
+            Layout.preferredWidth: 36
+            Layout.preferredHeight: 36
 
             visible: !(sentByMe || avatarVisible)
-
-            text: Qt.formatDateTime(time, "hh:mm")
-            color: MPalette.lighter
-
-            font.pixelSize: 10
-            horizontalAlignment: Label.AlignHCenter
-            verticalAlignment: Label.AlignVCenter
         }
 
         Control {
-            Layout.maximumWidth: messageListView.width - (!sentByMe ? 32 + messageRow.spacing : 0) - 48
+            Layout.maximumWidth: messageListView.width - (!sentByMe ? 36 + messageRow.spacing : 0) - 48
 
-            verticalPadding: 8
-            horizontalPadding: 16
+            padding: 0
 
-            background: Rectangle {
-                color: sentByMe ? "#009DC2" : eventType === "notice" ? "#4285F4" : "#673AB7"
+            background: AutoRectangle {
+                readonly property int minorRadius: 2
+
+                id: bubbleBackground
+
+                color: sentByMe ? MPalette.background : eventType === "notice" ? MPalette.primary : MPalette.accent
                 radius: 18
-                antialiasing: true
+
+                topLeftVisible: !sentByMe && (bubbleShape == 3 || bubbleShape == 2)
+                topRightVisible: sentByMe && (bubbleShape == 3 || bubbleShape == 2)
+                bottomLeftVisible: !sentByMe && (bubbleShape == 1 || bubbleShape == 2)
+                bottomRightVisible: sentByMe && (bubbleShape == 1 || bubbleShape == 2)
+
+                topLeftRadius: minorRadius
+                topRightRadius: minorRadius
+                bottomLeftRadius: minorRadius
+                bottomRightRadius: minorRadius
 
                 AutoMouseArea {
                     anchors.fill: parent
@@ -131,89 +126,88 @@ ColumnLayout {
             }
 
             contentItem: ColumnLayout {
+                spacing: 0
+
                 Control {
                     Layout.fillWidth: true
 
-                    visible: replyEventId || ""
+                    Layout.topMargin: 8
+                    Layout.leftMargin: 8
+                    Layout.rightMargin: 8
 
-                    padding: 8
+                    padding: 4
+                    rightPadding: 12
 
-                    background: RippleEffect {
-                        anchors.fill: parent
-
-                        onPrimaryClicked: goToEvent(replyEventId)
-                    }
+                    visible: replyVisible
 
                     contentItem: RowLayout {
-                        spacing: 8
-
                         Avatar {
-                            Layout.preferredWidth: 36
-                            Layout.preferredHeight: 36
+                            Layout.preferredWidth: 28
+                            Layout.preferredHeight: 28
                             Layout.alignment: Qt.AlignTop
 
-                            source: replyAuthor ? replyAuthor.avatarMediaId : ""
-                            hint: replyAuthor ? replyAuthor.displayName : "H"
+                            source: replyVisible ? replyAuthor.avatarMediaId : ""
+                            hint: replyVisible ? replyAuthor.displayName : "H"
+
+                            RippleEffect {
+                                anchors.fill: parent
+
+                                circular: true
+
+                                onClicked: userDetailDialog.createObject(ApplicationWindow.overlay, {"room": currentRoom, "user": replyAuthor}).open()
+                            }
                         }
 
-                        ColumnLayout {
+                        Label {
                             Layout.fillWidth: true
 
-                            spacing: 0
+                            color: !sentByMe ? MPalette.foreground : "white"
+                            text: "<style>a{color: " + color + ";} .user-pill{}</style>" + (replyDisplay || "")
 
-                            Label {
-                                Layout.fillWidth: true
-
-                                color: "white"
-                                text: replyAuthor ? replyAuthor.displayName : ""
-
-                                font.pixelSize: 13
-                                font.weight: Font.Medium
-                            }
-
-                            Label {
-                                Layout.fillWidth: true
-
-                                color: "white"
-                                text: "<style>a{color: white;} .user-pill{}</style>" + (replyDisplay || "")
-
-                                wrapMode: Label.Wrap
-                                textFormat: Label.RichText
-                            }
+                            wrapMode: Label.Wrap
+                            textFormat: Label.RichText
                         }
                     }
-                }
 
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 1
+                    background: Rectangle {
+                        color: sentByMe ? MPalette.accent : MPalette.background
+                        radius: 18
 
-                    visible: replyEventId || ""
-                    color: "white"
+                        AutoMouseArea {
+                            anchors.fill: parent
+
+                            onClicked: goToEvent(replyEventId)
+                        }
+                    }
                 }
 
                 TextEdit {
                     Layout.fillWidth: true
 
+                    Layout.leftMargin: 16
+                    Layout.rightMargin: 16
+                    Layout.topMargin: 8
+                    Layout.bottomMargin: 8
+
                     id: contentLabel
 
-                    text: "<style>a{color: white;} .user-pill{}</style>" + display
+                    text: "<style>a{color: " + color + ";} .user-pill{}</style>" + display
 
-                    color: "white"
+                    color: darkBackground ? "white" : MPalette.foreground
 
                     font.family: window.font.family
                     font.pixelSize: 14
                     selectByMouse: true
                     readOnly: true
                     wrapMode: Label.Wrap
-                    selectedTextColor: Material.accent
-                    selectionColor: "white"
+                    selectedTextColor: darkBackground ? MPalette.accent : "white"
+                    selectionColor: darkBackground ? "white" : MPalette.accent
                     textFormat: Text.RichText
 
                     onLinkActivated: {
                         if (link.startsWith("https://matrix.to/")) {
                             var result = link.replace(/\?.*/, "").match("https://matrix.to/#/(!.*:.*)/(\\$.*:.*)")
-                            if (result.length < 3) return
+                            if (!result || result.length < 3) return
                             if (result[1] != currentRoom.id) return
                             if (!result[2]) return
                             goToEvent(result[2])
@@ -229,6 +223,27 @@ ColumnLayout {
                     }
                 }
             }
+        }
+    }
+
+    RowLayout {
+        Layout.alignment: sentByMe ? Qt.AlignRight : Qt.AlignLeft
+        Layout.leftMargin: sentByMe ? undefined : 36 + messageRow.spacing + 12
+        Layout.rightMargin: sentByMe ? 12 : undefined
+        Layout.bottomMargin: 4
+
+        visible: showAuthor
+
+        Label {
+            visible: !sentByMe
+
+            text: author.displayName
+            color: MPalette.lighter
+        }
+
+        Label {
+            text: Qt.formatTime(time, "hh:mm AP")
+            color: MPalette.lighter
         }
     }
 }
