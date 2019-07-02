@@ -29,7 +29,6 @@ SpectralRoom::SpectralRoom(Connection* connection,
           &SpectralRoom::countChanged);
   connect(this, &SpectralRoom::highlightCountChanged, this,
           &SpectralRoom::countChanged);
-  connect(this, &Room::addedMessages, this, [=] { setBusy(false); });
   connect(this, &Room::fileTransferCompleted, this, [=] {
     setFileUploadingProgress(0);
     setHasFileUploading(false);
@@ -218,8 +217,23 @@ void SpectralRoom::saveViewport(int topIndex, int bottomIndex) {
 }
 
 void SpectralRoom::getPreviousContent(int limit) {
-  setBusy(true);
-  Room::getPreviousContent(limit);
+  if (timelineSize() > 0 && !m_timelineCompleted) {
+    const auto timelineIt = messageEvents().cbegin();
+    const auto& evt = **timelineIt;
+    if (is<const RoomCreateEvent&>(evt)) {
+      m_timelineCompleted = true;
+    }
+  }
+
+  if (m_timelineCompleted) {
+    SpectralRoom* p = predecessor();
+    if (p == nullptr) return;
+
+    qDebug() << "Fetching predecessor's previous content: " << p;
+    p->getPreviousContent(limit);
+  } else {
+    Room::getPreviousContent(limit);
+  }
 }
 
 QVariantList SpectralRoom::getUsers(const QString& prefix) {
@@ -303,4 +317,46 @@ QString SpectralRoom::backgroundMediaId() {
 
   auto url = backgroundUrl();
   return url.authority() + url.path();
+}
+
+SpectralRoom* SpectralRoom::predecessor() const {
+  if (predecessorId().isEmpty())
+    return nullptr;
+  return static_cast<SpectralRoom*>(connection()->room(predecessorId()));
+}
+
+int SpectralRoom::mergedTimelineSize() const {
+  auto p = predecessor();
+
+  if (p == nullptr) {
+    return timelineSize();
+  }
+
+  return timelineSize() + p->mergedTimelineSize();
+}
+
+bool SpectralRoom::hasEventAtIndex(int index) {
+    if (index >= timelineSize()) {  // Possibly an event from predecessor.
+      auto p = predecessor();
+      if (p == nullptr)
+        return false;
+
+      return p->hasEventAtIndex(index - timelineSize());
+    }
+
+    return true;
+}
+
+Room::rev_iter_t SpectralRoom::eventIteratorAtIndex(int index) {
+  if (index >= timelineSize()) {  // Possibly an event from predecessor.
+    auto p = predecessor();
+    if (p == nullptr)
+      return timelineEdge();
+
+    return p->eventIteratorAtIndex(index - timelineSize());
+  }
+
+  const auto timelineIt = messageEvents().crbegin() + index;
+
+  return timelineIt;
 }

@@ -126,6 +126,11 @@ class SpectralRoom : public Room {
 
   QString backgroundMediaId();
 
+  int mergedTimelineSize() const;
+
+  bool hasEventAtIndex(int index);
+  Room::rev_iter_t eventIteratorAtIndex(int index);
+
   template <typename BaseEventT>
   QString eventToString(const BaseEventT& evt,
                         Qt::TextFormat format = Qt::PlainText) {
@@ -281,10 +286,14 @@ class SpectralRoom : public Room {
 
   bool m_busy = false;
 
+  bool m_timelineCompleted = false;
+
   void checkForHighlights(const QMatrixClient::TimelineItem& ti);
 
   void onAddNewTimelineEvents(timeline_iter_t from) override;
   void onAddHistoricalTimelineEvents(rev_iter_t from) override;
+
+  SpectralRoom* predecessor() const;
 
  private slots:
   void countChanged();

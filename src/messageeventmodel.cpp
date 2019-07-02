@@ -248,20 +248,24 @@ void MessageEventModel::refreshLastUserEvents(int baseTimelineRow) {
 int MessageEventModel::rowCount(const QModelIndex& parent) const {
   if (!m_currentRoom || parent.isValid())
     return 0;
-  return m_currentRoom->timelineSize();
+  return m_currentRoom->mergedTimelineSize();
 }
 
 QVariant MessageEventModel::data(const QModelIndex& idx, int role) const {
   const auto row = idx.row();
 
-  if (!m_currentRoom || row < 0 ||
-      row >= int(m_currentRoom->pendingEvents().size()) +
-                 m_currentRoom->timelineSize())
+//  if (!m_currentRoom || row < 0 ||
+//      row >= int(m_currentRoom->pendingEvents().size()) +
+//                 m_currentRoom->timelineSize())
+//    return {};
+
+  if (!m_currentRoom || row < 0 || !m_currentRoom->hasEventAtIndex(std::max(0, row - timelineBaseIndex())))
     return {};
 
   bool isPending = row < timelineBaseIndex();
-  const auto timelineIt = m_currentRoom->messageEvents().crbegin() +
-                          std::max(0, row - timelineBaseIndex());
+//  const auto timelineIt = m_currentRoom->messageEvents().crbegin() +
+//                          std::max(0, row - timelineBaseIndex());
+  const auto timelineIt = m_currentRoom->eventIteratorAtIndex(row - timelineBaseIndex());
   const auto pendingIt = m_currentRoom->pendingEvents().crbegin() +
                          std::min(row, timelineBaseIndex());
   const auto& evt = isPending ? **pendingIt : **timelineIt;
