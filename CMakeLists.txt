@@ -178,7 +178,7 @@ if(APPLE)
     set(MACOSX_BUNDLE_BUNDLE_VERSION ${quaternion_VERSION})
 
     set(ICON_NAME "icon.icns")
-    set(${PROJECT_NAME}_MAC_ICON "${PROJECT_SOURCE_DIR}/assets/img/${ICON_NAME}")
+    set(${PROJECT_NAME}_MAC_ICON "${PROJECT_SOURCE_DIR}/icons/${ICON_NAME}")
     set(MACOSX_BUNDLE_ICON_FILE ${ICON_NAME})
     set_property(SOURCE "${${PROJECT_NAME}_MAC_ICON}" PROPERTY
         MACOSX_PACKAGE_LOCATION Resources)
@@ -205,7 +205,7 @@ endif()
 
 # macOS specific config for bundling
 set_property(TARGET ${PROJECT_NAME} PROPERTY
-    MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/macOS/Info.plist")
+    MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/macOS/Info.plist.in")
 
 # Installation
 
