@@ -59,6 +59,11 @@ else()
     get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 endif()
 
+# prevent error "You must build your code with position independent code if Qt was built with..
+if (Qt5_POSITION_INDEPENDENT_CODE)
+  SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
 if(WIN32)
     enable_language(RC)
     include(CMakeDetermineRCCompiler)
