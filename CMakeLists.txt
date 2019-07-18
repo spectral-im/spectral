@@ -168,14 +168,20 @@ set(spectral_QRC
 QT5_ADD_RESOURCES(spectral_QRC_SRC ${spectral_QRC})
 set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
 
+if(WIN32)
+    set_property(SOURCE spectral_win32.rc APPEND PROPERTY
+        OBJECT_DEPENDS ${PROJECT_SOURCE_DIR}/icons/icon.ico
+    )
+endif()
+
 if(APPLE)
     set(MACOSX_BUNDLE_GUI_IDENTIFIER ${IDENTIFIER})
     set(MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME})
 
     set(MACOSX_BUNDLE_COPYRIGHT ${COPYRIGHT})
 
-    set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${quaternion_VERSION})
-    set(MACOSX_BUNDLE_BUNDLE_VERSION ${quaternion_VERSION})
+    set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${spectral_VERSION})
+    set(MACOSX_BUNDLE_BUNDLE_VERSION ${spectral_VERSION})
 
     set(ICON_NAME "icon.icns")
     set(${PROJECT_NAME}_MAC_ICON "${PROJECT_SOURCE_DIR}/icons/${ICON_NAME}")
@@ -223,11 +229,10 @@ if(LINUX)
     install(FILES linux/${IDENTIFIER}.appdata.xml
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/metainfo
             )
-    install(FILES ${quaternion_QM}
-            DESTINATION ${CMAKE_INSTALL_DATADIR}/QMatrixClient/quaternion/translations
-            )
-    file(GLOB quaternion_icons icons/quaternion/*-apps-quaternion.png)
-
+    file(GLOB spectral_icons icons/hicolor/*-apps-spectral.png)
+    ecm_install_icons(ICONS ${spectral_icons}
+                      DESTINATION ${CMAKE_INSTALL_DATADIR}/icons
+                      )
 endif(LINUX)
 
 set(QML_DIR ${PROJECT_SOURCE_DIR}/client/qml ${PROJECT_SOURCE_DIR}/client/imports)
@@ -247,12 +252,9 @@ if(WIN32)
         if (WDQ_RETVAL)
             message( \"windeployqt returned \${WDQ_RETVAL} - check messages above\")
         else()
-            message( STATUS \"Quaternion and its dependencies have been deployed to \${CMAKE_INSTALL_PREFIX}.\")
+            message( STATUS \"spectral and its dependencies have been deployed to \${CMAKE_INSTALL_PREFIX}.\")
         endif()
     ")
-    install(FILES ${quaternion_QM}
-            DESTINATION ${CMAKE_INSTALL_BINDIR}/translations
-           )
 endif(WIN32)
 
 # Packaging
