@@ -38,8 +38,6 @@ int main(int argc, char* argv[]) {
   app.setApplicationName("Spectral");
   app.setWindowIcon(QIcon(":/assets/img/icon.png"));
 
-  qmlRegisterType<qqsfpm::QQmlSortFilterProxyModel>("SortFilterProxyModel", 0,
-                                                    2, "SortFilterProxyModel");
   qmlRegisterType<Controller>("Spectral", 0, 1, "Controller");
   qmlRegisterType<AccountListModel>("Spectral", 0, 1, "AccountListModel");
   qmlRegisterType<RoomListModel>("Spectral", 0, 1, "RoomListModel");
