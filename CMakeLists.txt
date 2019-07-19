@@ -86,15 +86,7 @@ endif ()
 
 find_package(Qt5Keychain REQUIRED)
 
-find_library(CMARK_LIBRARIES NAMES cmark)
-find_path(CMARK_INCLUDE_DIRS NAMES cmark.h)
-
-add_library(cmark::cmark UNKNOWN IMPORTED)
-set_target_properties(cmark::cmark
-                      PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                                 ${CMARK_INCLUDE_DIRS})
-set_property(TARGET cmark::cmark APPEND
-             PROPERTY IMPORTED_LOCATION ${CMARK_LIBRARIES})
+find_package(cmark REQUIRED)
 
 add_subdirectory(include/SortFilterProxyModel EXCLUDE_FROM_ALL)
 include_directories(include/SortFilterProxyModel)
@@ -132,6 +124,7 @@ if (USE_INTREE_LIBQMC)
 else ()
     message( STATUS "Using libQMatrixClient ${QMatrixClient_VERSION} at ${QMatrixClient_DIR}")
 endif ()
+
 message( STATUS "=============================================================================" )
 message( STATUS )
 
