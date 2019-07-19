@@ -35,9 +35,6 @@ build_script:
 
 after_build:
   - cmake --build build --target install
-  - cd "%DEPLOY_DIR%"
-  - rmdir /S /Q bearer qmltooling
-  - cd ..
   - windeployqt --release --qmldir qml --qmldir imports "%DEPLOY_DIR%\spectral.exe"
   - 7z a spectral.zip "%DEPLOY_DIR%\"
 
