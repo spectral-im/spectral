@@ -9,7 +9,6 @@ if(NOT CMARK_INCLUDE_DIR)
   find_path(CMARK_INCLUDE_DIR
             NAMES cmark.h
             PATHS
-            ${cmark_DIR}/../../include/
             ${PC_CMARK_INCLUDEDIR}
             ${PC_CMARK_INCLUDE_DIRS}
             /usr/include
@@ -20,7 +19,6 @@ if(NOT CMARK_LIBRARY)
   find_library(CMARK_LIBRARY
                NAMES cmark
                HINTS
-               ${cmark_DIR}/../
                ${PC_CMARK_LIBDIR}
                ${PC_CMARK_LIBRARY_DIRS}
                /usr/lib
