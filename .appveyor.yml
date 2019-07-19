@@ -30,7 +30,7 @@ before_build:
   - cd ..
 
 build_script:
-  - cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DQT5KEYCHAIN_INCLUDE_DIR="qtkeychain/install/include" -DQT5KEYCHAIN_LIBRARY="qtkeychain/install/lib" -DCMARK_INCLUDE_DIR="cmark/install/include" -DCMARK_LIBRARY="cmark/install/lib" -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
+  - cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DQT5KEYCHAIN_DIR="qtkeychain/install/lib/cmake" -DCMARK_DIR="cmark/install/lib/cmake" -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
   - cmake --build build
 
 after_build:
