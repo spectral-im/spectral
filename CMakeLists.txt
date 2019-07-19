@@ -205,8 +205,8 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network
     QMatrixClient
     cmark
+    ${QTKEYCHAIN_LIBRARIES}
     SortFilterProxyModel
-    Qt5Keychain
     )
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
