@@ -25,7 +25,7 @@ before_build:
   - cd ..
   - git clone https://github.com/commonmark/cmark.git
   - cd cmark
-  - cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="install"
+  - cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="install" -DCMARK_STATIC=ON -DCMARK_SHARED=OFF
   - cmake --build build --target install
   - cd ..
 
