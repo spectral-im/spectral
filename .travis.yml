@@ -27,7 +27,7 @@ script:
 - cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
 - cmake --build . --target all
 - export DESTDIR=$TRAVIS_BUILD_DIR/install
-- macdeployqt bin/spectral.app -dmg -qmldir=qml -qmldir=imports
+- macdeployqt spectral.app -dmg -qmldir=qml -qmldir=imports
 
 before_deploy:
 - mv build/bin/spectral.dmg ./
