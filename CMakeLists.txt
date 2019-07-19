@@ -212,6 +212,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} Qt5::MacExtras)
+elseif(LINUX)
+    target_link_libraries(${PROJECT_NAME} Qt5::DBus)
 endif()
 
 # macOS specific config for bundling
