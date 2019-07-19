@@ -86,7 +86,8 @@ endif ()
 
 find_package(Qt5Keychain REQUIRED)
 
-find_package(cmark REQUIRED)
+find_library(CMARK_LIBRARIES NAMES cmark)
+find_path(CMARK_INCLUDE_DIRS NAMES cmark.h)
 
 add_subdirectory(include/SortFilterProxyModel EXCLUDE_FROM_ALL)
 include_directories(include/SortFilterProxyModel)
@@ -203,7 +204,7 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 target_link_libraries(${PROJECT_NAME}
     Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network
     QMatrixClient
-    cmark::cmark
+    cmark
     SortFilterProxyModel
     Qt5Keychain
     )
