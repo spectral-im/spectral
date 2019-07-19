@@ -1,4 +1,4 @@
-# Find QtKeychain
+# Find Qt5Keychain
 # ~~~~~~~~~~~~~~~
 # Copyright (c) 2016, Boundless Spatial
 # Author: Larry Shaffer <lshaffer (at) boundlessgeo (dot) com>
@@ -6,15 +6,15 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
-# CMake module to search for QtKeychain library from:
+# CMake module to search for Qt5Keychain library from:
 #    https://github.com/frankosterfeld/qtkeychain
 #
-# If it's found it sets QTKEYCHAIN_FOUND to TRUE
+# If it's found it sets QT5KEYCHAIN_FOUND to TRUE
 # and following variables are set:
-#    QTKEYCHAIN_INCLUDE_DIR
-#    QTKEYCHAIN_LIBRARY
+#    QT5KEYCHAIN_INCLUDE_DIR
+#    QT5KEYCHAIN_LIBRARY
 
-FIND_PATH(QTKEYCHAIN_INCLUDE_DIR
+find_path(QT5KEYCHAIN_INCLUDE_DIR
   NAMES
   keychain.h
   PATHS
@@ -25,7 +25,7 @@ FIND_PATH(QTKEYCHAIN_INCLUDE_DIR
   qt5keychain
 )
 
-FIND_LIBRARY(QTKEYCHAIN_LIBRARY
+find_library(QT5KEYCHAIN_LIBRARY
   NAMES
   qt5keychain
   libqt5keychain
@@ -38,18 +38,31 @@ FIND_LIBRARY(QTKEYCHAIN_LIBRARY
   ${CMAKE_INSTALL_PREFIX}/lib
 )
 
-IF (QTKEYCHAIN_INCLUDE_DIR AND QTKEYCHAIN_LIBRARY)
-  SET(QTKEYCHAIN_FOUND TRUE)
-ELSE()
-  SET(QTKEYCHAIN_FOUND FALSE)
-ENDIF (QTKEYCHAIN_INCLUDE_DIR AND QTKEYCHAIN_LIBRARY)
+if (QT5KEYCHAIN_INCLUDE_DIR AND QT5KEYCHAIN_LIBRARY)
+  set(QT5KEYCHAIN_FOUND TRUE)
+else()
+  set(QT5KEYCHAIN_FOUND FALSE)
+endif (QT5KEYCHAIN_INCLUDE_DIR AND QT5KEYCHAIN_LIBRARY)
 
-IF (QTKEYCHAIN_FOUND)
-   IF (NOT QTKEYCHAIN_FIND_QUIETLY)
-      MESSAGE(STATUS "Found QtKeychain: ${QTKEYCHAIN_LIBRARY}")
-   ENDIF (NOT QTKEYCHAIN_FIND_QUIETLY)
-ELSE (QTKEYCHAIN_FOUND)
-   IF (QTKEYCHAIN_FIND_REQUIRED)
-      MESSAGE(FATAL_ERROR "Could not find QtKeychain")
-   ENDIF (QTKEYCHAIN_FIND_REQUIRED)
-ENDIF (QTKEYCHAIN_FOUND)
+if (QT5KEYCHAIN_FOUND)
+   if (NOT QT5KEYCHAIN_FIND_QUIETLY)
+      message(STATUS "Found Qt5Keychain: ${QT5KEYCHAIN_LIBRARY}")
+   endif (NOT QT5KEYCHAIN_FIND_QUIETLY)
+else (QT5KEYCHAIN_FOUND)
+   if (QT5KEYCHAIN_FIND_REQUIRED)
+      message(FATAL_ERROR "Could not find Qt5Keychain")
+   endif (QT5KEYCHAIN_FIND_REQUIRED)
+endif (QT5KEYCHAIN_FOUND)
+
+if(NOT TARGET Qt5Keychain)
+    add_library(Qt5Keychain UNKNOWN IMPORTED)
+  set_target_properties(Qt5Keychain
+                        PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
+                                   ${QT5KEYCHAIN_INCLUDE_DIR})
+  set_property(TARGET Qt5Keychain APPEND PROPERTY IMPORTED_LOCATION ${QT5KEYCHAIN_LIBRARY})
+endif()
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(Qt5Keychain DEFAULT_MSG QT5KEYCHAIN_INCLUDE_DIR QT5KEYCHAIN_LIBRARY)
+
+mark_as_advanced(QT5KEYCHAIN_INCLUDE_DIR QT5KEYCHAIN_INCLUDE_DIR)
