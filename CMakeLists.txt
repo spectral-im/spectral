@@ -89,6 +89,8 @@ find_package(Qt5Keychain REQUIRED)
 find_library(CMARK_LIBRARIES NAMES cmark)
 find_path(CMARK_INCLUDE_DIRS NAMES cmark.h)
 
+include_directories(CMARK_INCLUDE_DIRS)
+
 add_subdirectory(include/SortFilterProxyModel EXCLUDE_FROM_ALL)
 include_directories(include/SortFilterProxyModel)
 
