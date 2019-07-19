@@ -241,37 +241,3 @@ if(LINUX)
                       DESTINATION ${CMAKE_INSTALL_DATADIR}/icons
                       )
 endif(LINUX)
-
-set(QML_DIR ${PROJECT_SOURCE_DIR}/client/qml ${PROJECT_SOURCE_DIR}/client/imports)
-if (NOT DEPLOY_VERBOSITY)
-    set(DEPLOY_VERBOSITY 1) # The default for *deployqt tools, out of 0..3
-endif()
-if(WIN32)
-    install(CODE "
-        message(STATUS \"Running windeployqt at \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}\")
-        execute_process(
-            COMMAND \"${Qt5_BinDir}/windeployqt\" --verbose ${DEPLOY_VERBOSITY}
-                --no-multimediaquick --no-declarative --no-test --no-winextras
-                --qmldir \"${QML_DIR}\"
-                \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}
-            RESULT_VARIABLE WDQ_RETVAL
-        )
-        if (WDQ_RETVAL)
-            message( \"windeployqt returned \${WDQ_RETVAL} - check messages above\")
-        else()
-            message( STATUS \"spectral and its dependencies have been deployed to \${CMAKE_INSTALL_PREFIX}.\")
-        endif()
-    ")
-endif(WIN32)
-
-# Packaging
-
-if(APPLE)
-    set(MACDEPLOYQT_ARGS ${PROJECT_NAME}.app -dmg -qmldir="${QML_DIR}" -verbose=${DEPLOY_VERBOSITY})
-    add_custom_target(image
-        COMMAND "${Qt5_BinDir}/macdeployqt" ${MACDEPLOYQT_ARGS}
-        DEPENDS ${PROJECT_NAME}
-        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-        COMMENT "Running ${MACDEPLOYQT} with args: ${MACDEPLOYQT_ARGS}"
-    )
-endif(APPLE)
