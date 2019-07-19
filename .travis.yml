@@ -14,6 +14,7 @@ matrix:
         - qt5
         - qtkeychain
         - cmark
+        - cmake
 
 install:
 - git submodule update --init --recursive
