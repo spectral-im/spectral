@@ -196,7 +196,7 @@ if(APPLE)
 endif(APPLE)
 
 # Windows, this is a GUI executable; OSX, make a bundle
-add_executable(${PROJECT_NAME} MACOSX_BUNDLE
+add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     ${spectral_SRCS} ${spectral_QRC_SRC} $<TARGET_OBJECTS:SortFilterProxyModel>
     ${spectral_WINRC} ${${PROJECT_NAME}_MAC_ICON})
 
