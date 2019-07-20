@@ -22,8 +22,6 @@
 #include "csapi/joining.h"
 #include "csapi/leaving.h"
 
-#include "qqmlsortfilterproxymodel.h"
-
 using namespace QMatrixClient;
 
 int main(int argc, char* argv[]) {

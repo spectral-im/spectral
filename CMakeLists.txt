@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -89,7 +89,6 @@ find_package(Qt5Keychain REQUIRED)
 find_package(cmark REQUIRED)
 
 add_subdirectory(include/SortFilterProxyModel EXCLUDE_FROM_ALL)
-include_directories(include/SortFilterProxyModel)
 
 message( STATUS )
 message( STATUS "=============================================================================" )
@@ -198,7 +197,7 @@ endif(APPLE)
 
 # Windows, this is a GUI executable; OSX, make a bundle
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
-    ${spectral_SRCS} ${spectral_QRC_SRC}
+    ${spectral_SRCS} ${spectral_QRC_SRC} $<TARGET_OBJECTS:SortFilterProxyModel>
     ${spectral_WINRC} ${${PROJECT_NAME}_MAC_ICON})
 
 target_link_libraries(${PROJECT_NAME}
@@ -206,7 +205,6 @@ target_link_libraries(${PROJECT_NAME}
     QMatrixClient
     cmark::cmark
     ${QTKEYCHAIN_LIBRARIES}
-    SortFilterProxyModel
     )
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")

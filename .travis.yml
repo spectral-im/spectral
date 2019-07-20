@@ -27,10 +27,11 @@ script:
 - cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
 - cmake --build . --target all
 - export DESTDIR=$TRAVIS_BUILD_DIR/install
-- macdeployqt spectral.app -dmg -qmldir=qml -qmldir=imports
+- popd
+- macdeployqt build/spectral.app -dmg -qmldir=qml -qmldir=imports
 
 before_deploy:
-- mv build/bin/spectral.dmg ./
+- mv build/spectral.dmg ./
 - sed -i -e "s/TRAVIS_BUILD_NUMBER/0.0.0.$(git rev-list --count HEAD)/g" .ci/bintray-release.json
 
 deploy:
