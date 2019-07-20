@@ -37,8 +37,8 @@ after_build:
   - cmake --build build --target install
   - windeployqt --release --qmldir qml --qmldir imports "%DEPLOY_DIR%\spectral.exe"
 
-  - copy C:/projects/spectral/cmark/install/lib/cmark.lib "%DEPLOY_DIR%\"
-  - copy C:/projects/spectral/cmark/install/bin/cmark.dll "%DEPLOY_DIR%\"
+  - copy C:\projects\spectral\cmark\install\lib\cmark.lib "%DEPLOY_DIR%\"
+  - copy C:\projects\spectral\cmark\install\bin\cmark.dll "%DEPLOY_DIR%\"
 
   - 7z a spectral.zip "%DEPLOY_DIR%\*"
 
