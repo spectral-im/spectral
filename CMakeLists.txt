@@ -42,7 +42,7 @@ foreach (FLAG "" all pedantic extra no-unused-parameter)
 endforeach ()
 
 # Find the libraries
-find_package(Qt5 5.12 REQUIRED Widgets Network Quick Qml Gui Svg Multimedia)
+find_package(Qt5 5.12 REQUIRED Widgets Network Gui Svg Multimedia)
 if(LINUX)
     find_package(Qt5DBus REQUIRED)
 endif(LINUX)
@@ -63,8 +63,6 @@ endif()
 if (Qt5_POSITION_INDEPENDENT_CODE)
   SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
-
-set(QML_IMPORT_PATH ${CMAKE_SOURCE_DIR}/qml ${CMAKE_SOURCE_DIR}/imports CACHE string "" FORCE)
 
 if(WIN32)
     enable_language(RC)
@@ -89,8 +87,6 @@ endif ()
 find_package(Qt5Keychain REQUIRED)
 
 find_package(cmark REQUIRED)
-
-add_subdirectory(include/SortFilterProxyModel EXCLUDE_FROM_ALL)
 
 message( STATUS )
 message( STATUS "=============================================================================" )
@@ -132,30 +128,51 @@ message( STATUS )
 # Set up source files
 set(spectral_SRCS
     src/notifications/manager.h
-    src/accountlistmodel.h
+
+#    src/model/accountlistmodel.h
+#    src/model/accountlistmodel.cpp
+#    src/model/emojimodel.h
+#    src/model/emojimodel.cpp
+    src/model/roomlistmodel.h
+    src/model/roomlistmodel.cpp
+#    src/model/userlistmodel.h
+#    src/model/userlistmodel.cpp
+    src/model/abstractroomordering.h
+    src/model/abstractroomordering.cpp
+    src/model/orderbytag.h
+    src/model/orderbytag.cpp
+
+    src/widget/chatpage.h
+    src/widget/chatpage.cpp
+    src/widget/roomlistview.h
+    src/widget/roomlistview.cpp
+    src/widget/roomlistpanel.h
+    src/widget/roomlistpanel.cpp
+    src/widget/roompanel.h
+    src/widget/roompanel.cpp
+    src/widget/materialavatar.h
+    src/widget/materialavatar.cpp
+    src/widget/label.h
+    src/widget/label.cpp
+    src/widget/messagelistview.h
+    src/widget/messagelistview.cpp
+    src/widget/timelinedelegate.h
+    src/widget/timelinedelegate.cpp
+
+    src/palette.h
+
     src/controller.h
-    src/emojimodel.h
-    src/imageclipboard.h
-    src/matriximageprovider.h
-    src/messageeventmodel.h
-    src/roomlistmodel.h
+    src/controller.cpp
     src/spectralroom.h
     src/spectraluser.h
     src/trayicon.h
-    src/userlistmodel.h
     src/utils.h
-    src/accountlistmodel.cpp
-    src/controller.cpp
-    src/emojimodel.cpp
-    src/imageclipboard.cpp
-    src/matriximageprovider.cpp
-    src/messageeventmodel.cpp
-    src/roomlistmodel.cpp
+    src/mainwindow.h
     src/spectralroom.cpp
     src/spectraluser.cpp
     src/trayicon.cpp
-    src/userlistmodel.cpp
     src/utils.cpp
+    src/mainwindow.cpp
     src/main.cpp
 )
 
@@ -200,11 +217,11 @@ endif(APPLE)
 
 # Windows, this is a GUI executable; OSX, make a bundle
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
-    ${spectral_SRCS} ${spectral_QRC_SRC} $<TARGET_OBJECTS:SortFilterProxyModel>
+    ${spectral_SRCS} ${spectral_QRC_SRC}
     ${spectral_WINRC} ${${PROJECT_NAME}_MAC_ICON})
 
 target_link_libraries(${PROJECT_NAME}
-    Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network
+    Qt5::Widgets Qt5::Gui Qt5::Network
     QMatrixClient
     cmark::cmark
     ${QTKEYCHAIN_LIBRARIES}

@@ -1,77 +1,45 @@
-#include <QFontDatabase>
-#include <QGuiApplication>
-#include <QNetworkProxy>
+#include <QApplication>
 #include <QNetworkProxyFactory>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
 
-#include "accountlistmodel.h"
-#include "controller.h"
-#include "emojimodel.h"
-#include "imageclipboard.h"
-#include "matriximageprovider.h"
-#include "messageeventmodel.h"
-#include "notifications/manager.h"
-#include "room.h"
-#include "roomlistmodel.h"
-#include "spectralroom.h"
-#include "spectraluser.h"
-#include "trayicon.h"
-#include "userlistmodel.h"
+#include "mainwindow.h"
 
-#include "csapi/joining.h"
-#include "csapi/leaving.h"
+#include "palette.h"
 
-using namespace QMatrixClient;
+QByteArray readTextFile(const QString& file_path) {
+  QFile input_file(file_path);
+  QByteArray input_data;
+
+  if (input_file.open(QIODevice::Text | QIODevice::Unbuffered |
+                      QIODevice::ReadOnly)) {
+    input_data = input_file.readAll();
+    input_file.close();
+    return input_data;
+  } else {
+    return QByteArray();
+  }
+}
 
 int main(int argc, char* argv[]) {
-  QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
+  QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
   QNetworkProxyFactory::setUseSystemConfiguration(true);
 
+  QString stylesheet = MPalette::generateStyleSheet(readTextFile(":/assets/stylesheet/base.qss"));
+
   QApplication app(argc, argv);
+
+  QApplication::setStyle("macintosh");
 
   app.setOrganizationName("ENCOM");
   app.setOrganizationDomain("encom.eu.org");
   app.setApplicationName("Spectral");
   app.setWindowIcon(QIcon(":/assets/img/icon.png"));
 
-  qmlRegisterType<Controller>("Spectral", 0, 1, "Controller");
-  qmlRegisterType<AccountListModel>("Spectral", 0, 1, "AccountListModel");
-  qmlRegisterType<RoomListModel>("Spectral", 0, 1, "RoomListModel");
-  qmlRegisterType<UserListModel>("Spectral", 0, 1, "UserListModel");
-  qmlRegisterType<MessageEventModel>("Spectral", 0, 1, "MessageEventModel");
-  qmlRegisterType<EmojiModel>("Spectral", 0, 1, "EmojiModel");
-  qmlRegisterType<NotificationsManager>("Spectral", 0, 1,
-                                        "NotificationsManager");
-  qmlRegisterType<TrayIcon>("Spectral", 0, 1, "TrayIcon");
-  qmlRegisterType<ImageClipboard>("Spectral", 0, 1, "ImageClipboard");
-  qmlRegisterUncreatableType<RoomMessageEvent>("Spectral", 0, 1,
-                                               "RoomMessageEvent", "ENUM");
-  qmlRegisterUncreatableType<RoomType>("Spectral", 0, 1, "RoomType", "ENUM");
+  app.setStyleSheet(stylesheet);
 
-  qRegisterMetaType<User*>("User*");
-  qRegisterMetaType<User*>("const User*");
-  qRegisterMetaType<Room*>("Room*");
-  qRegisterMetaType<Connection*>("Connection*");
-  qRegisterMetaType<MessageEventType>("MessageEventType");
-  qRegisterMetaType<SpectralRoom*>("SpectralRoom*");
-  qRegisterMetaType<SpectralUser*>("SpectralUser*");
-  qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
+  MainWindow w;
 
-  qRegisterMetaTypeStreamOperators<Emoji>();
-
-  QQmlApplicationEngine engine;
-
-  engine.addImportPath("qrc:/imports");
-  MatrixImageProvider* matrixImageProvider = new MatrixImageProvider();
-  engine.rootContext()->setContextProperty("imageProvider",
-                                           matrixImageProvider);
-  engine.addImageProvider(QLatin1String("mxc"), matrixImageProvider);
-
-  engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
-  if (engine.rootObjects().isEmpty())
-    return -1;
+  w.show();
 
   return app.exec();
 }
