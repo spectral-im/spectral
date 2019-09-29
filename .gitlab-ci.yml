@@ -10,7 +10,7 @@ build-appimage:
   stage: build
   before_script:
     - sudo apt-get update
-    - sudo apt-get install cmake
+    - sudo apt-get -y install cmake
   script:
     - git clone https://gitlab.matrix.org/matrix-org/olm.git && cd olm
     - cmake . -Bbuild -LA -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=install -DBUILD_SHARED_LIBS=NO
