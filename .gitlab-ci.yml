@@ -8,6 +8,9 @@ variables:
 build-appimage:
   image: a12e/docker-qt:5.12-gcc_64
   stage: build
+  before_script:
+    - apt update
+    - apt install cmake
   script:
     - git clone https://gitlab.matrix.org/matrix-org/olm.git && cd olm
     - cmake . -Bbuild -LA -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=install -DBUILD_SHARED_LIBS=NO
