@@ -18,6 +18,8 @@ build-appimage:
     - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
     - sudo apt-get update
     - sudo apt-get -y install gcc-9
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-9
+    - sudo update-alternatives --config gcc
   script:
     - git clone https://gitlab.matrix.org/matrix-org/olm.git && cd olm
     - cmake . -Bbuild -LA -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=install -DBUILD_SHARED_LIBS=NO
