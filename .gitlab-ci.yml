@@ -6,7 +6,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 build-appimage:
-  image: docker-qt:5.12-gcc_64
+  image: a12e/docker-qt:5.12-gcc_64
   stage: build
   script:
     - git clone https://gitlab.matrix.org/matrix-org/olm.git && cd olm
