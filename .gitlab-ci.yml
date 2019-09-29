@@ -10,6 +10,10 @@ build-appimage:
   stage: build
   before_script:
     - sudo apt-get update
+    - sudo apt-get -y install apt-transport-https ca-certificates gnupg software-properties-common wget
+    - wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
+    - sudo apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ xenial main'
+    - sudo apt-get update
     - sudo apt-get -y install cmake
   script:
     - git clone https://gitlab.matrix.org/matrix-org/olm.git && cd olm
