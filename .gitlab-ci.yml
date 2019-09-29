@@ -39,9 +39,10 @@ build-appimage:
     - cmake --build build --target install
     - cp install/usr/share/icons/hicolor/256x256/apps/spectral.png install/org.eu.encom.spectral.png
     - linuxdeployqt install/usr/share/applications/org.eu.encom.spectral.desktop -appimage -qmldir=qml -qmldir=imports
+    - mv *.AppImage spectral.AppImage
   artifacts:
     paths:
-    - Spectral*.AppImage
+    - spectral.AppImage
 
 build-flatpak:
   image: registry.gitlab.com/b0/flatpak-kde-docker
