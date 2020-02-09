@@ -172,20 +172,57 @@ ApplicationWindow {
 
             connection: spectralController.connection
 
-            onLeaveRoom: roomForm.saveViewport()
+            onEnterRoom: {
+                if (room) {
+                    console.log("Entering room " + room.displayName)
+                    roomPanelLoader.setSource("qrc:/imports/Spectral/Panel/RoomPanel.qml", {"currentRoom": room})
+                }
+            }
         }
     }
 
-    RoomPanel {
+    Item {
         anchors.fill: parent
         anchors.leftMargin: !inPortrait ? roomListDrawer.width : undefined
         anchors.rightMargin: !inPortrait && roomDrawer.visible ? roomDrawer.width : undefined
 
-        id: roomForm
+        id: mainView
 
-        clip: true
+        Column {
+            anchors.centerIn: parent
 
-        currentRoom: roomListForm.enteredRoom
+            spacing: 16
+
+            Image {
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                width: 240
+
+                fillMode: Image.PreserveAspectFit
+
+                source: "qrc:/assets/img/matrix.svg"
+            }
+
+            Label {
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                text: "Welcome to Matrix, a new era of instant messaging."
+                wrapMode: Label.Wrap
+            }
+
+            Label {
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                text: "To start chatting, select a room from the room list."
+                wrapMode: Label.Wrap
+            }
+        }
+
+        Loader {
+            anchors.fill: parent
+
+            id: roomPanelLoader
+        }
     }
 
     RoomDrawer {

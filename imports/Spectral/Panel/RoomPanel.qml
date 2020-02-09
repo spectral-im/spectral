@@ -23,13 +23,12 @@ Item {
 
     MessageEventModel {
         id: messageEventModel
+
         room: currentRoom
     }
 
     DropArea {
         anchors.fill: parent
-
-        enabled: currentRoom
 
         onDropped: {
             if (!drop.hasUrls) return
@@ -142,50 +141,15 @@ Item {
         OpenFileDialog {}
     }
 
-    Column {
-        anchors.centerIn: parent
-
-        spacing: 16
-
-        visible: !currentRoom
-
-        Image {
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            width: 240
-
-            fillMode: Image.PreserveAspectFit
-
-            source: "qrc:/assets/img/matrix.svg"
-        }
-
-        Label {
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            text: "Welcome to Matrix, a new era of instant messaging."
-            wrapMode: Label.Wrap
-        }
-
-        Label {
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            text: "To start chatting, select a room from the room list."
-            wrapMode: Label.Wrap
-        }
-    }
-
     Rectangle {
         anchors.fill: parent
 
-        visible: currentRoom
         color: MSettings.darkTheme ? "#242424" : "#EBEFF2"
     }
 
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
-
-        visible: currentRoom
 
         RoomHeader {
             Layout.fillWidth: true
@@ -238,25 +202,6 @@ Item {
                             expression: marks !== 0x10 && eventType !== "other"
                         }
                     ]
-
-                    onModelReset: {
-                        movingTimer.stop()
-                        if (currentRoom) {
-                            movingTimer.restart()
-
-                            //                            var lastScrollPosition = sortedMessageEventModel.mapFromSource(currentRoom.savedTopVisibleIndex())
-                            //                            if (lastScrollPosition === 0) {
-                            //                                messageListView.positionViewAtBeginning()
-                            //                            } else {
-                            //                                messageListView.currentIndex = lastScrollPosition
-                            //                            }
-
-                            if (messageListView.contentY < messageListView.originY + 10 || currentRoom.timelineSize < 20)
-                                currentRoom.getPreviousContent(50)
-
-                            messageListView.positionViewAtBeginning()
-                        }
-                    }
                 }
 
                 onContentYChanged: {
@@ -491,7 +436,7 @@ Item {
 
                     id: goReadMarkerFab
 
-                    visible: currentRoom && currentRoom.hasUnreadMessages
+                    visible: currentRoom.hasUnreadMessages
 
                     contentItem: MaterialIcon {
                         icon: "\ue316"
@@ -559,7 +504,7 @@ Item {
                     anchors.left: parent.left
                     anchors.bottom: parent.bottom
 
-                    visible: currentRoom && currentRoom.usersTyping.length > 0
+                    visible: currentRoom.usersTyping.length > 0
                     padding: 4
 
                     contentItem: RowLayout {
@@ -638,6 +583,13 @@ Item {
         running: false
 
         onTriggered: saveReadMarker()
+    }
+
+    Component.onCompleted: {
+        if (messageListView.contentY < messageListView.originY + 10 || currentRoom.timelineSize < 20)
+            currentRoom.getPreviousContent(50)
+
+        messageListView.positionViewAtBeginning()
     }
 
     function goToEvent(eventID) {
