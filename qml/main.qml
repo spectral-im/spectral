@@ -182,6 +182,12 @@ ApplicationWindow {
                     roomPanelLoader.setSource("qrc:/imports/Spectral/Panel/RoomPanel.qml", {"currentRoom": room})
                 }
             }
+
+            onLeaveRoom: {
+                if (roomPanelLoader.item) {
+                    roomPanelLoader.item.saveViewport()
+                }
+            }
         }
     }
 

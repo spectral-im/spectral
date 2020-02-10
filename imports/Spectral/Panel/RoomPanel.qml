@@ -207,6 +207,8 @@ Item {
                 onContentYChanged: {
                     if(!noNeedMoreContent && contentY  - 5000 < originY)
                         currentRoom.getPreviousContent(20);
+
+                    movingTimer.restart()
                 }
 
                 populate: Transition {
@@ -580,7 +582,7 @@ Item {
 
         interval: 10000
         repeat: true
-        running: false
+        running: true
 
         onTriggered: saveReadMarker()
     }
@@ -588,6 +590,21 @@ Item {
     Component.onCompleted: {
         if (messageListView.contentY < messageListView.originY + 10 || currentRoom.timelineSize < 20)
             currentRoom.getPreviousContent(50)
+
+//        console.log(currentRoom.savedTopVisibleIndex())
+
+//        var lastScrollPosition = sortedMessageEventModel.mapFromSource(currentRoom.savedTopVisibleIndex())
+
+//        console.log(lastScrollPosition)
+
+//        if (lastScrollPosition < 1) {
+//            messageListView.positionViewAtBeginning()
+//        } else {
+//            for (var i = 0; i < 5; i++) {
+//                messageListView.currentIndex = -1
+//                messageListView.currentIndex = lastScrollPosition
+//            }
+//        }
 
         messageListView.positionViewAtBeginning()
     }
