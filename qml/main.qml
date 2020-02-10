@@ -86,9 +86,7 @@ ApplicationWindow {
         id: notificationsManager
 
         onNotificationClicked: {
-            var enteredRoom = spectralController.connection.room(roomId);
-            roomListForm.enterRoom(enteredRoom)
-            roomListForm.enteredRoom = enteredRoom
+            roomListForm.joinRoom(spectralController.connection.room(roomId))
 
             if (roomPanelLoader.active) {
                 roomPanelLoader.item.goToEvent(eventId)

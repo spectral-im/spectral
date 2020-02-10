@@ -167,7 +167,7 @@ Dialog {
                             anchors.fill: parent
 
                             onClicked: {
-                                roomListForm.enteredRoom = spectralController.connection.room(room.predecessorId)
+                                roomListForm.joinRoom(spectralController.connection.room(room.predecessorId))
                                 root.close()
                             }
                         }
@@ -218,7 +218,7 @@ Dialog {
                             anchors.fill: parent
 
                             onClicked: {
-                                roomListForm.enteredRoom = spectralController.connection.room(room.successorId)
+                                roomListForm.joinRoom(spectralController.connection.room(room.successorId))
                                 root.close()
                             }
                         }
