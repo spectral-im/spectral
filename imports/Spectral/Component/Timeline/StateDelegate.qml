@@ -48,7 +48,17 @@ Control {
 
                         circular: true
 
-                        onClicked: userDetailDialog.createObject(ApplicationWindow.overlay, {"room": currentRoom, "user": author.object, "displayName": author.displayName, "avatarMediaId": author.avatarMediaId, "avatarUrl": author.avatarUrl}).open()
+                        onClicked: userDetailDialog.createObject(
+                                       ApplicationWindow.overlay,
+                                       {
+                                           "room": currentRoom,
+                                           "user": author.object,
+                                           "controller": spectralController,
+                                           "displayName": author.displayName,
+                                           "avatarMediaId": author.avatarMediaId,
+                                           "avatarUrl": author.avatarUrl
+                                       }
+                                   ).open()
                     }
                 }
 
