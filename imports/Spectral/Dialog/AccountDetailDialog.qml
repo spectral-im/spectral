@@ -58,12 +58,20 @@ Dialog {
                 }
 
                 RippleEffect {
+                    id: mousearea
                     anchors.fill: parent
 
                     circular: true
+                    hoverEnabled: true
 
                     onPrimaryClicked: spectralController.connection = connection
                     onSecondaryClicked: contextMenu.popup()
+                }
+
+                ToolTip {
+                    text: connection.localUserId
+                    visible: mousearea.containsMouse
+                    delay: 100
                 }
             }
         }
