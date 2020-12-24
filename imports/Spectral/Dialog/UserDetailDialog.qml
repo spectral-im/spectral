@@ -118,6 +118,51 @@ Dialog {
         Control {
             Layout.fillWidth: true
 
+            // No need to show this option when the direct chat with this person is already open imo
+            visible: !room.isDirectChat();
+
+            contentItem: RowLayout {
+                MaterialIcon {
+                    Layout.preferredWidth: 32
+                    Layout.preferredHeight: 32
+                    Layout.alignment: Qt.AlignTop
+
+                    icon: "\ue0c9"
+                    color: MPalette.lighter
+                }
+
+                Label {
+                    Layout.fillWidth: true
+
+                    wrapMode: Label.Wrap
+                    text: "Message this user"
+
+                    color: MPalette.accent
+                }
+            }
+
+            background: RippleEffect {
+                // This will either emit the existing chat or create a new one and emit it
+                onPrimaryClicked: {
+                    spectralController.connection.requestDirectChat(user)
+                }
+            }
+
+            // We then simply capture that and change the view
+            Connections {
+                target: spectralController.connection;
+                onDirectChatAvailable: {
+                    root.close()
+                    console.log(directChat)
+                    roomListForm.filter = 1
+                    roomListForm.joinRoom(directChat)
+                    }
+            }
+        }
+
+        Control {
+            Layout.fillWidth: true
+
             contentItem: RowLayout {
                 MaterialIcon {
                     Layout.preferredWidth: 32
